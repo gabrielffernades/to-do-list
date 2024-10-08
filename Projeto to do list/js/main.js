@@ -1,20 +1,20 @@
 
 const Main = { 
    
-    init: function() { 
+    init: function() {  //função que inicializa a aplicacao
         this.cacheSelectors() 
         this.bindEvents()
     },
-
-    cacheSelectors: function() {
+    
+    cacheSelectors: function() { //armazena referencias do html
       this.$checkButtons = document.querySelectorAll('.check')
       this.$inputTask = document.querySelector('#input_task')
       this.$list = document.querySelector('#list')
       this.$removeButtons = document.querySelectorAll('.remove')
     },
-
-    bindEvents: function() {
-        const self = this
+    //**************************************** */
+    bindEvents: function() { // associa eventos aos elementos da pagina
+        const self = this //preserva o contexto correto do this
 
         this.$checkButtons.forEach(function(button) {
             button.onclick = self.Events.checkButton_click
@@ -26,8 +26,8 @@ const Main = {
             button_remove.onclick = self.Events.removeButton_click
         })
     },
-
-    Events : {
+     //*********************EVENTS***********************************************/
+    Events : { //eventos
         checkButton_click: function(e) {
             const li = e.target.parentElement
             const isDone = li.classList.contains('done')
