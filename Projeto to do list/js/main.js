@@ -1,9 +1,13 @@
 
 const Main = { 
-   
+    
+    tasks: [],
+
     init: function() {  //função que inicializa a aplicacao
         this.cacheSelectors() 
         this.bindEvents()
+        this.getStoraged()
+        this.buildTasks()
     },
     
     cacheSelectors: function() { //armazena referencias do html
@@ -23,8 +27,43 @@ const Main = {
         this.$inputTask.onkeypress = self.Events.inputTask_keypress.bind(this)
 
         this.$removeButtons.forEach(function(button_remove){
-            button_remove.onclick = self.Events.removeButton_click
+            button_remove.onclick = self.Events.removeButton_click.bind(self)
         })
+    },
+
+    getStoraged : function() {
+        const tasks = localStorage.getItem('tasks')
+
+        if (tasks) {
+            this.tasks = JSON.parse(tasks)
+        } else {
+            localStorage.setItem('tasks', JSON.stringify([]))
+        }
+      
+    },
+
+    getTaskHtml: function(task) {
+        return`
+            <li>
+                <div class="check"></div>
+                <label class="task">
+                    ${task}
+                </label>
+                <button class="remove" data-task = '${task}'></button>
+            </li>
+        `;
+    },
+
+    buildTasks: function() {
+        let html = ''
+        this.tasks.forEach(item => {
+            html += this.getTaskHtml(item.task)
+        })
+
+        this.$list.innerHTML = html
+
+        this.cacheSelectors()
+        this.bindEvents()
     },
      //*********************EVENTS***********************************************/
     Events : { //eventos
@@ -43,24 +82,33 @@ const Main = {
             const value = e.target.value //armazena o texto do input no qual o usuario digitou 
 
             if(key === 'Enter') {
-               this.$list.innerHTML += `
-                    <li>
-                        <div class="check"></div>
-                        <label class="task">
-                            ${value}
-                        </label>
-                        <button class="remove"></button>
-                    </li>
-               `
+               this.$list.innerHTML += this.getTaskHtml(value)
+
                 e.target.value = ''
 
                 this.cacheSelectors() //executa o cacheSelectors novamente pois o inner HTML substitui toda a ul
                 this.bindEvents() //executa o bindEvents novamente pois o inner HTML substitui toda a ul
+
+                const savedTasks = localStorage.getItem("tasks")
+                const savedTasksObj = JSON.parse(savedTasks)
+
+                const obj = [
+                    {task: value},
+                    ...savedTasksObj, 
+                ]
+
+
+                localStorage.setItem('tasks', JSON.stringify(obj))
             }
         },
 
         removeButton_click: function(e) {
-            let li = e.target.parentElement
+            const li = e.target.parentElement
+            const value = e.target.dataset['task']
+
+            const newTasksState = this.tasks.filter(item => item.task !== value)  
+
+            localStorage.setItem('tasks', JSON.stringify(newTasksState))
 
             li.classList.add('removed')
 
